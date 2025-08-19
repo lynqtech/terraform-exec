@@ -5,7 +5,6 @@ package tfexec
 
 import (
 	"context"
-	"fmt"
 	"os/exec"
 	"strings"
 	"sync"
@@ -56,7 +55,7 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 		}
 	}
 	if err != nil {
-		return err
+		return tf.wrapExitError(ctx, err, "")
 	}
 
 	var errStdout, errStderr error
@@ -85,15 +84,15 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 		}
 	}
 	if err != nil {
-		return fmt.Errorf("%w\n%s", err, errBuf.String())
+		return tf.wrapExitError(ctx, err, errBuf.String())
 	}
 
 	// Return error if there was an issue reading the std out/err
 	if errStdout != nil && ctx.Err() != nil {
-		return fmt.Errorf("%w\n%s", errStdout, errBuf.String())
+		return tf.wrapExitError(ctx, errStdout, errBuf.String())
 	}
 	if errStderr != nil && ctx.Err() != nil {
-		return fmt.Errorf("%w\n%s", errStderr, errBuf.String())
+		return tf.wrapExitError(ctx, errStdout, errBuf.String())
 	}
 
 	return nil

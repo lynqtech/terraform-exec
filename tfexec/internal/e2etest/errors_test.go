@@ -116,6 +116,10 @@ func TestLockedState(t *testing.T) {
 		if !strings.Contains(err.Error(), "state lock") {
 			t.Fatal("expected err.Error() to contain 'state lock', but it did not")
 		}
+		var stateLockedErr *tfexec.ErrStateLocked
+		if !errors.As(err, &stateLockedErr) {
+			t.Fatalf("expected ErrStateLocked, got %T, %s", err, err)
+		}
 	})
 }
 
